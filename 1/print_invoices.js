@@ -1,6 +1,3 @@
-import invoice from "./data/invoices.json" assert { type: "json" };
-import plays from "./data/plays.json" assert { type: "json" };
-
 import createStatementData from './createStatementData.js';
 export function statement(invoice, plays) {
     return renderPlainText(createStatementData(invoice, plays));
