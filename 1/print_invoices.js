@@ -1,18 +1,16 @@
 import invoice from "./data/invoices.json" assert { type: "json" };
 import plays from "./data/plays.json" assert { type: "json" };
 export default function statement(invoice, plays) {
-    let totalAmount = 0;
     let result = `Statement for ${invoice[0].customer}\n`
 
     // console.log(plays[invoice[0].performances[0].playID]) // { name: "Hamlet", type: "tragedy" }
     // console.log(invoice[0]["performances"])
     for (let perf of invoice[0].performances) {
         // console.log(plays[perf["playID"]])
-        result += `${playFor(perf).name}: ${usd(amountFor(perf)/100)} (${perf.audience} seats)\n`;
-        totalAmount += amountFor(perf);
+        result += `${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n`;
     }
 
-    result += `Amount owed is ${usd(totalAmount/100)}\n`;
+    result += `Amount owed is ${usd(totalAmount())}\n`;
     result += `You earned ${totalVolumeCredits()} credits\n`;
     return result;
 }
@@ -58,7 +56,7 @@ function usd(aNumber) {
             currency: "USD",
             minimumFractionDigits: 2,
         }
-    ).format(aNumber);
+    ).format(aNumber/100);
 }
 
 function totalVolumeCredits() {
@@ -67,4 +65,12 @@ function totalVolumeCredits() {
         volumeCredits += volumeCreditsFor(perf);
     }
     return volumeCredits;
+}
+
+function totalAmount() {
+    let result= 0;
+    for (let aPerformance of invoice[0].performances) {
+        result += amountFor(aPerformance);
+    }
+    return result;
 }
