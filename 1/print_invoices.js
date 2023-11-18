@@ -1,32 +1,19 @@
+import invoice from "./data/invoices.json" assert { type: "json" };
 import plays from "./data/plays.json" assert { type: "json" };
 export default function statement(invoice, plays) {
     let totalAmount = 0;
-    let volumeCredits = 0;
     let result = `Statement for ${invoice[0].customer}\n`
-
-    const format = new Intl.NumberFormat(
-        "en-US",
-        {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 2,
-        }
-    ).format;
 
     // console.log(plays[invoice[0].performances[0].playID]) // { name: "Hamlet", type: "tragedy" }
     // console.log(invoice[0]["performances"])
     for (let perf of invoice[0].performances) {
         // console.log(plays[perf["playID"]])
-
-        volumeCredits += volumeCreditsFor(perf);
-        if ("comedy" === playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5);
-
-        result += `${playFor(perf).name}: ${format(amountFor(perf)/100)} (${perf.audience} seats)\n`;
+        result += `${playFor(perf).name}: ${usd(amountFor(perf)/100)} (${perf.audience} seats)\n`;
         totalAmount += amountFor(perf);
     }
 
-    result += `Amount owed is ${format(totalAmount/100)}\n`;
-    result += `You earned ${volumeCredits} credits\n`;
+    result += `Amount owed is ${usd(totalAmount/100)}\n`;
+    result += `You earned ${totalVolumeCredits()} credits\n`;
     return result;
 }
 
@@ -61,4 +48,23 @@ function volumeCreditsFor(aPerformance) {
     result += Math.max(aPerformance.audience - 30, 0);
     if ("comedy" === playFor(aPerformance).type) result += Math.floor(aPerformance.audience / 5);
     return result;
+}
+
+function usd(aNumber) {
+    return new Intl.NumberFormat(
+        "en-US",
+        {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+        }
+    ).format(aNumber);
+}
+
+function totalVolumeCredits() {
+    let volumeCredits = 0;
+    for (let perf of invoice[0].performances) {
+        volumeCredits += volumeCreditsFor(perf);
+    }
+    return volumeCredits;
 }
