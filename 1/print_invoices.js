@@ -1,12 +1,16 @@
 import invoice from "./data/invoices.json" assert { type: "json" };
 import plays from "./data/plays.json" assert { type: "json" };
 export default function statement(invoice, plays) {
+    return renderPlainText(createStatementData(invoice, plays));
+}
+
+function createStatementData(invoice, plays) {
     const statementData = {};
     statementData.customer = invoice[0].customer;
     statementData.performances = invoice[0].performances.map(enrichPerformance);
     statementData.totalAmount = totalAmount(statementData);
     statementData.totalVolumeCredits = totalVolumeCredits(statementData);
-    return renderPlainText(statementData, plays);
+    return statementData;
 
     function enrichPerformance(aPerformance) {
         const result = Object.assign({}, aPerformance);
